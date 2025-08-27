@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instalar dependências do sistema
+# Instalar dependências essenciais do sistema
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
@@ -16,25 +16,15 @@ RUN apt-get update && apt-get install -y \
     libgomp1 \
     libgthread-2.0-0 \
     libgtk-3-0 \
-    libavcodec58 \
-    libavformat58 \
-    libswscale5 \
-    libv4l-0 \
-    libxvidcore4 \
-    libx264-163 \
     libjpeg62-turbo \
     libpng16-16 \
     libtiff5 \
     libatlas-base-dev \
-    libhdf5-103 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 # Criar usuário não-root
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
-# Criar diretórios necessários
-RUN mkdir -p /app/uploads /app/models && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser
 
 # Definir diretório de trabalho
 WORKDIR /app
@@ -46,15 +36,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código da aplicação
-COPY --chown=appuser:appuser . .
+COPY . .
 
-# Baixar modelo YOLO se não existir
-RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')" || true
-
-# Definir permissões corretas
-RUN chown -R appuser:appuser /app && \
-    chmod -R 755 /app && \
-    chmod 777 /app/uploads
+# Criar pasta uploads e definir permissões
+RUN mkdir -p uploads && chown -R appuser:appuser /app
 
 # Mudar para usuário não-root
 USER appuser

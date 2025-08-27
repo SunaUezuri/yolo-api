@@ -1,5 +1,5 @@
 # Etapa de build
-FROM python:3.11-slim as builder
+FROM python:3.11-bullseye as builder
 
 # Instalar dependências de compilação
 RUN apt-get update && apt-get install -y \
@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Etapa final
-FROM python:3.11-slim
+FROM python:3.11-bullseye
 
 # Dependências necessárias para OpenCV/YOLO
 RUN apt-get update && apt-get install -y \

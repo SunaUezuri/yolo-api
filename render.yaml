@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: yolo-api
+    env: python
+    plan: starter
+    buildCommand: docker build -t yolo-api .
+    startCommand: docker run -p $PORT:8000 yolo-api
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_APP
+        value: app.py
+    healthCheckPath: /health
+    autoDeploy: true
